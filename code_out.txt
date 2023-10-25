@@ -1,0 +1,257 @@
+// E:\Benutzer\eiker\Dokumente\GitHub\gametheory-express\GameTheory-Express\src\common\validators.ts
+export type ValidNumRedCards = 0 | 1 | 2;
+// E:\Benutzer\eiker\Dokumente\GitHub\gametheory-express\GameTheory-Express\src\common\middleware\authenticate.ts
+import { Request, Response, NextFunction } from 'express';
+import * as admin from 'firebase-admin';
+import { auth } from 'firebase-admin';
+
+interface FirebaseRequest extends Request {
+    user?: auth.DecodedIdToken;
+}
+
+const authenticateUser = async (req: FirebaseRequest, res: Response, next: NextFunction) => {
+    const idToken = req.headers.authorization; // idToken could be undefined
+
+    if (!idToken) {
+        res.status(401).send('Unauthorized');
+        return;
+    }
+
+    try {
+        req.user = await admin.auth().verifyIdToken(idToken);
+        next();
+    } catch (error) {
+        res.status(401).send('Unauthorized');
+    }
+};
+
+export { authenticateUser };
+// E:\Benutzer\eiker\Dokumente\GitHub\gametheory-express\GameTheory-Express\src\common\models\gameMode.ts
+import {GameState} from "./";
+
+export abstract class GameMode {
+    abstract startGame(gameState: GameState): void;
+    abstract endGame(gameState: GameState): void;
+    // Define common properties for game mode
+}
+// E:\Benutzer\eiker\Dokumente\GitHub\gametheory-express\GameTheory-Express\src\common\models\gameSession.ts
+import { GameMode, GameState, Player } from './'; // Abstract game mode and game state
+
+export class GameSession {
+    id: string;
+    owner: string;
+    players: Player[];
+    inviteLink: string;
+    qrCode: string;
+    currentTurn: number;
+    gameMode: GameMode;
+    gameState: GameState;
+    startedAt: Date;
+
+    constructor(
+        id: string,
+        owner: string,
+        players: Player[],
+        inviteLink: string,
+        qrCode: string,
+        gameMode: GameMode,
+        gameState: GameState,
+        startedAt: Date
+    ) {
+        this.id = id;
+        this.owner = owner;
+        this.players = players;
+        this.inviteLink = inviteLink;
+        this.qrCode = qrCode;
+        this.currentTurn = 1;
+        this.gameMode = gameMode;
+        this.gameState = gameState;
+        this.startedAt = startedAt;
+    }
+
+    // Add methods for session management
+    /*startGame(): void {
+        this.gameMode.startGame(this.gameState);
+    }
+
+    endGame(): void {
+        this.gameMode.endGame(this.gameState);
+    }
+
+    getPlayerById(playerId: string): Player | undefined{
+        return this.players.find((player) => player.id === playerId);
+    }*/
+}
+// E:\Benutzer\eiker\Dokumente\GitHub\gametheory-express\GameTheory-Express\src\common\models\gameState.ts
+export abstract class GameState {
+    // Define common properties for game state
+}
+// E:\Benutzer\eiker\Dokumente\GitHub\gametheory-express\GameTheory-Express\src\common\models\index.ts
+export {GameMode} from './gameMode';
+export {GameSession} from './gameSession';
+export {GameState} from './gameState';
+export {Player} from './player';
+// E:\Benutzer\eiker\Dokumente\GitHub\gametheory-express\GameTheory-Express\src\common\models\player.ts
+export interface Player {
+    id: string;
+    name: string;
+    score: number;
+    // Add other player properties as needed
+}
+// E:\Benutzer\eiker\Dokumente\GitHub\gametheory-express\GameTheory-Express\src\common\services\userService.ts
+// E:\Benutzer\eiker\Dokumente\GitHub\gametheory-express\GameTheory-Express\src\games\publicGoodsGame\publicGoodsGameSession.ts
+import { v4 as uuidv4 } from 'uuid';
+import NodeCache from 'node-cache';
+import { GameSession, Player } from '../../common/models';
+import { createPublicGoodsGameSession, getAllPublicGoodsGameSessions } from './services/publicGoodsGameService';
+
+const globalState = new NodeCache();
+
+export { createPublicGoodsGameSession, getAllPublicGoodsGameSessions };
+// E:\Benutzer\eiker\Dokumente\GitHub\gametheory-express\GameTheory-Express\src\games\publicGoodsGame\models\publicGoodsGameMode.ts
+import {GameMode, GameSession, GameState, Player} from "../../../common/models";
+import PublicGoodsGameMove from "./publicGoodsGameMove";
+import {PublicGoodsGameState} from "./publicGoodsGameState";
+
+const CARDS_ON_HAND_MAX = 4;
+const RED_CARDS_ON_HAND_MAX = 2;
+const BLACK_CARDS_ON_HAND_MAX = 2;
+
+export class PublicGoodsGameMode extends GameMode {
+    startGame(gameState: GameState): void {
+        // Implement start game logic for the 'public goods game'
+    }
+
+    endGame(gameState: GameState): void {
+        // Implement end game logic for the 'public goods game'
+    }
+
+    makeMove(session: GameSession, move: PublicGoodsGameMove) {
+        const publicGoodsGameState = session.gameState as PublicGoodsGameState;
+
+        publicGoodsGameState.moves.push(move);
+        publicGoodsGameState.publicGoodsPotCards += move.cardsThrown.redCards;
+    }
+
+    updateScores(session: GameSession) {
+        const publicGoodsGameState = session.gameState as PublicGoodsGameState;
+        const totalRedCardsInPot = publicGoodsGameState.publicGoodsPotCards;
+        const numberOfPlayers = session.players.length;
+        const redCardValueOnHand = publicGoodsGameState.redCardValueOnHand;
+        const redCardValueInPot = publicGoodsGameState.redCardValueInPot;
+
+        const scoreIncreaseFromPot = totalRedCardsInPot * redCardValueInPot / numberOfPlayers;
+
+        session.players.forEach((player: Player) => {
+            const redCardsThrown = publicGoodsGameState.moves
+            .filter((move: PublicGoodsGameMove) => move.playerId === player.id)[0]
+                .cardsThrown.redCards;
+            const redCardsOnHand = RED_CARDS_ON_HAND_MAX - redCardsThrown;
+
+            player.score += scoreIncreaseFromPot + redCardsOnHand * redCardValueOnHand;
+            // Update player's score in your data store
+        });
+    }
+}
+// E:\Benutzer\eiker\Dokumente\GitHub\gametheory-express\GameTheory-Express\src\games\publicGoodsGame\models\publicGoodsGameMove.ts
+interface PublicGoodsGameMove {
+    id: string; // UUID
+    playerId: string; // UUID of the player making the move
+    cardsThrown: {
+        //blackCards: number;
+        redCards: number;
+    };
+}
+
+export default PublicGoodsGameMove;
+// E:\Benutzer\eiker\Dokumente\GitHub\gametheory-express\GameTheory-Express\src\games\publicGoodsGame\models\publicGoodsGameState.ts
+import {GameState} from "../../../common/models";
+import PublicGoodsGameMove from "./publicGoodsGameMove";
+
+const DEFAULT_RED_CARD_VALUE_ON_HAND = 1;
+const DEFAULT_RED_CARD_VALUE_IN_POT = 2;
+const STARTING_TURN = 0;
+const DEFAULT_NUMBER_OF_TURNS = 5;
+const STARTING_POT = 0;
+
+export class PublicGoodsGameState extends GameState {
+    publicGoodsPotCards: number;
+    currentTurn: number;
+    numberOfTurns: number;
+    redCardValueOnHand: number = DEFAULT_RED_CARD_VALUE_ON_HAND;
+    redCardValueInPot: number = DEFAULT_RED_CARD_VALUE_IN_POT;
+    moves: PublicGoodsGameMove[];
+
+    constructor(redCardValueInPot: number = DEFAULT_RED_CARD_VALUE_IN_POT) {
+        super();
+        this.publicGoodsPotCards = STARTING_POT;
+        this.currentTurn = STARTING_TURN;
+        this.numberOfTurns = DEFAULT_NUMBER_OF_TURNS;
+        this.moves = [];
+    }
+    // Implement game-specific methods and properties
+    // For example, methods to update card values and pot value
+}
+// E:\Benutzer\eiker\Dokumente\GitHub\gametheory-express\GameTheory-Express\src\games\publicGoodsGame\routes\gameSessionRoutes.ts
+import Router from 'express';
+import {
+    createPublicGoodsGameSession,
+    getAllPublicGoodsGameSessions
+} from "../publicGoodsGameSession";
+import {Player} from "../../../common/models";
+import {authenticateUser} from "../../../common/middleware/authenticate";
+
+const gameSessionRouter = Router();
+
+// Route for creating a new game session
+gameSessionRouter.post('/',authenticateUser , (req, res) => {
+    // Extract owner and players information from the request body
+    const owner: string = req.body.owner;
+    const players: Player[] = req.body.players;
+
+    // Create a new game session using the createGameSession function
+    const newGameSession = createPublicGoodsGameSession(owner, players);
+
+    // Return the newly created game session as a response
+    res.json(newGameSession);
+});
+
+gameSessionRouter.get('/', (req, res) => {
+    res.json(getAllPublicGoodsGameSessions());
+});
+
+export { gameSessionRouter };
+// E:\Benutzer\eiker\Dokumente\GitHub\gametheory-express\GameTheory-Express\src\games\publicGoodsGame\services\publicGoodsGameService.ts
+import { GameSession, Player } from '../../../common/models';
+import { PublicGoodsGameMode } from '../models/publicGoodsGameMode';
+import { PublicGoodsGameState } from '../models/publicGoodsGameState';
+import NodeCache from "node-cache";
+import {uuidv4} from "@firebase/util";
+
+const globalState = new NodeCache();
+
+export function createPublicGoodsGameSession(owner: string, players: Player[]): GameSession {
+    const sessionId = uuidv4();
+    const gameMode = new PublicGoodsGameMode();
+    const gameState = new PublicGoodsGameState();
+
+    const newSession: GameSession = {
+        id: sessionId,
+        owner,
+        players,
+        gameMode,
+        gameState,
+        inviteLink: `http://localhost:30167/invite/${sessionId}`,
+        qrCode: '',
+        currentTurn: 1,
+        startedAt: new Date(),
+    };
+
+    globalState.set(sessionId, newSession, 0);
+
+    return newSession;
+}
+
+export function getAllPublicGoodsGameSessions(): GameSession[] {
+    return Object.values(globalState.mget(globalState.keys())) as GameSession[];
+}
