@@ -1,17 +1,19 @@
-import {Game, gameState, Player, ValidNumRedCards} from './gameState';
+import { Game, gameState, Player, ValidNumRedCards } from './gameState';
+import { findOrThrow } from '../util/findOrThrow';
 
-export function startNewTurn (gameID: string, redCardValue: number) {
+export function startNewTurn(gameID: string, redCardValue: number) {
   if (!gameState.globalState.has(gameID)) {
     throw new Error('Game not Found!');
   }
-  const game: Game = gameState.globalState.get(gameID);
+  const game: Game = findOrThrow<Game>(gameState.globalState.get(gameID));
 
   game.turns[game.currentTurn] = redCardValue * game.players.reduce((total, player) => {
     // Find the moves for the currentTurn for the current player
     const movesForCurrentTurn = player.moves.filter((move) => move.numTurn === game.currentTurn);
 
     // Sum the numRedCards for the currentTurn
-    const numRedCardsForCurrentTurn = movesForCurrentTurn.reduce((sum, move) => sum + move.numRedCards, 0);
+    const numRedCardsForCurrentTurn = movesForCurrentTurn
+      .reduce((sum, move) => sum + move.numRedCards, 0);
 
     // Add the sum to the player's score
     player.score += numRedCardsForCurrentTurn;
@@ -24,14 +26,14 @@ export function startNewTurn (gameID: string, redCardValue: number) {
   return game.currentTurn;
 }
 
-export function addMove (gameId: string, playerId: string, numRedCards: ValidNumRedCards) {
-  const game: Game = gameState.globalState.get(gameId);
+export function addMove(gameId: string, playerId: string, numRedCards: ValidNumRedCards) {
+  const game: Game = findOrThrow<Game>(gameState.globalState.get(gameId));
   if (game.currentTurn === 0) return;
-  const player: Player = game.players.find((player) => player.id === playerId);
-  player.moves[game.currentTurn - 1] = { numRedCards: numRedCards, numTurn: game.currentTurn };
+  const player: Player = findOrThrow<Player>(game.players.find((currPlayer) => currPlayer.id === playerId));
+  player.moves[game.currentTurn - 1] = { numRedCards, numTurn: game.currentTurn };
 }
 
-/*export function getGameStatistics (gameId: string) {
+/* export function getGameStatistics (gameId: string) {
   if (!gameState.globalState.has(gameId)) {
     throw new Error('Game not Found!');
   }
@@ -53,11 +55,11 @@ export function addMove (gameId: string, playerId: string, numRedCards: ValidNum
   }
 
   return gameStatistics;
-}*/
+} */
 
-export async function waitForCurrentTurnChange (gameId: string): Promise<void> {
+export async function waitForCurrentTurnChange(gameId: string): Promise<void> {
   await new Promise((resolve, reject) => {
-    const game: Game = gameState.globalState.get(gameId);
+    const game: Game = findOrThrow<Game>(gameState.globalState.get(gameId));
     const currentTurn = game.currentTurn.valueOf();
 
     const interval = setInterval(() => {

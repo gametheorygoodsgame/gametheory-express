@@ -1,3 +1,3 @@
 export abstract class GameState {
-    // Define common properties for game state
+  // Define common properties for game state
 }

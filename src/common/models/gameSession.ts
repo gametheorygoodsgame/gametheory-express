@@ -1,39 +1,49 @@
-import { GameMode, GameState, Player } from './'; // Abstract game mode and game state
+import { Player } from './player';
+import { GameMode } from './gameMode';
+import { GameState } from './gameState';
 
 export class GameSession {
-    id: string;
-    owner: string;
-    players: Player[];
-    inviteLink: string;
-    qrCode: string;
-    currentTurn: number;
-    gameMode: GameMode;
-    gameState: GameState;
-    startedAt: Date;
+  id: string;
 
-    constructor(
-        id: string,
-        owner: string,
-        players: Player[],
-        inviteLink: string,
-        qrCode: string,
-        gameMode: GameMode,
-        gameState: GameState,
-        startedAt: Date
-    ) {
-        this.id = id;
-        this.owner = owner;
-        this.players = players;
-        this.inviteLink = inviteLink;
-        this.qrCode = qrCode;
-        this.currentTurn = 1;
-        this.gameMode = gameMode;
-        this.gameState = gameState;
-        this.startedAt = startedAt;
-    }
+  owner: string;
 
-    // Add methods for session management
-    /*startGame(): void {
+  players: Player[];
+
+  inviteLink: string;
+
+  qrCode: string;
+
+  currentTurn: number;
+
+  gameMode: GameMode;
+
+  gameState: GameState;
+
+  startedAt: Date;
+
+  constructor(
+    id: string,
+    owner: string,
+    players: Player[],
+    inviteLink: string,
+    qrCode: string,
+    gameMode: GameMode,
+    gameState: GameState,
+    startedAt: Date,
+  ) {
+    this.id = id;
+    this.owner = owner;
+    this.players = players;
+    this.inviteLink = inviteLink;
+    this.qrCode = qrCode;
+    this.currentTurn = 1;
+    this.gameMode = gameMode;
+    this.gameState = gameState;
+    this.startedAt = startedAt;
+  }
+
+  // Add methods for session management
+  /* startGame(): void {
         this.gameMode.startGame(this.gameState);
     }
 
@@ -43,5 +53,5 @@ export class GameSession {
 
     getPlayerById(playerId: string): Player | undefined{
         return this.players.find((player) => player.id === playerId);
-    }*/
+    } */
 }

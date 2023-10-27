@@ -1,56 +1,51 @@
 {
     "env": {
-        "node": true,
-        "es2018": true
+        "browser": true,
+        "es2021": true
     },
     "extends": [
-        "mantine",
-        "plugin:@next/next/recommended",
+        "airbnb-base",
+        "airbnb-typescript/base",
         "eslint:recommended",
-        "plugin:@typescript-eslint/recommended"],
+        "plugin:node/recommended",
+        "plugin:@typescript-eslint/recommended",
+        "plugin:yml/standard"
+    ],
+    "parser": "@typescript-eslint/parser",
     "parserOptions": {
-        "ecmaVersion": "latest",
+        "ecmaVersion": 2022, // Updated to use 2022
         "sourceType": "module",
         "project": "./tsconfig.json"
     },
-    "parser": "@typescript-eslint/parser",
-    "settings":  {
-        "import/resolver":  {
-            "node":  "@{extensions=System.Object[]}"
-        },
-        "import/parsers":  {
-            "@typescript-eslint/parser":  ".ts .tsx .d.ts"
-        },
-        "import/extensions":  [
-            ".js",
-            ".mjs",
-            ".jsx",
-            ".ts",
-            ".tsx",
-            ".d.ts"
-        ],
-        "import/external-module-folders":  [
-            "node_modules",
-            "node_modules/@types"
-        ],
-        "react":  {
-            "pragma":  "React",
-            "version":  "detect"
-        },
-        "propWrapperFunctions":  [
-            "forbidExtraProps",
-            "exact",
-            "Object.freeze"
-        ],
-        "import/core-modules":  [
-
-        ],
-        "import/ignore":  [
-            "node_modules",
-            "\\.(coffee|scss|css|less|hbs|svg|json)$"
-        ]
+    "plugins": [
+        "@typescript-eslint",
+        "json-format"
+    ],
+    "rules": {
+        "node/exports-style": ["error", "module.exports"],
+        "node/prefer-global/buffer": ["error", "always"],
+        "node/prefer-global/console": ["error", "always"],
+        "node/prefer-global/process": ["error", "always"],
+        "node/prefer-global/url-search-params": ["error", "always"],
+        "node/prefer-global/url": ["error", "always"],
+        "node/prefer-promises/dns": "error",
+        "node/prefer-promises/fs": "error",
+        "node/no-unsupported-features/es-syntax": "off",
+        "node/file-extension-in-import": "off",
+        "node/no-missing-import": "off",
+        "object-curly-newline": "off",
+        "import/prefer-default-export": "off"
     },
-    "ignorePatterns":  [
-        "*.js"
+    "settings": {
+        "json/sort-package-json": "standard",
+        "json/ignore-files": ["**/package-lock.json"],
+        "json/json-with-comments-files": ["**/tsconfig.json", ".vscode/**"]
+    },
+    "root": true,
+    "overrides": [
+        {
+            "files": ["*.yaml", "*.yml"],
+            "parser": "yaml-eslint-parser"
+        }
     ]
 }
