@@ -1,14 +1,3 @@
-// E:\Benutzer\eiker\Dokumente\GitHub\gametheory-express\src\models\game.ts
-import {Player} from './player';
-
-export interface Game {
-    id: string,
-    players: Player[],
-    turns: number[],
-    currentTurn: number,
-    numTurns: number
-}
-// E:\Benutzer\eiker\Dokumente\GitHub\gametheory-express\src\models\gameState.ts
 import { v4 as UUIDv4 } from 'uuid';
 import NodeCache from 'node-cache';
 import { findOrThrow, GameNotFoundError, PlayerNotFoundError } from '../utils/findOrThrow';
@@ -168,19 +157,3 @@ export const gameState = {
   startNewTurn,
   waitForCurrentTurnChange,
 };
-// E:\Benutzer\eiker\Dokumente\GitHub\gametheory-express\src\models\move.ts
-export interface Move {
-    numRedCards: ValidNumRedCards,
-    numTurn: number
-}
-
-export type ValidNumRedCards = 0 | 1 | 2;
-// E:\Benutzer\eiker\Dokumente\GitHub\gametheory-express\src\models\player.ts
-import {Move} from './move';
-
-export interface Player {
-  id: string,
-  name: string,
-  moves: Move[],
-  score: number
-}

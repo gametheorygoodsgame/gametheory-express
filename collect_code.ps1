@@ -1,5 +1,5 @@
 # Output file
-$outputFile = "E:\Benutzer\eiker\Dokumente\GitHub\gametheory-express\GameTheory-Express\code_out.txt"
+$outputFile = "E:\Benutzer\eiker\Dokumente\GitHub\gametheory-express\code_out.txt"
 
 # Remove the output file if it exists (to overwrite it)
 if (Test-Path -Path $outputFile) {
@@ -8,8 +8,7 @@ if (Test-Path -Path $outputFile) {
 
 # Define the directories to search recursively with absolute paths
 $directories = @(
-    "E:\Benutzer\eiker\Dokumente\GitHub\gametheory-express\GameTheory-Express\src\common",
-    "E:\Benutzer\eiker\Dokumente\GitHub\gametheory-express\GameTheory-Express\src\games"
+    "E:\Benutzer\eiker\Dokumente\GitHub\gametheory-express\src\models"
 )
 
 # Iterate over specified directories and their subdirectories for .ts files
