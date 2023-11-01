@@ -1,2 +1,11 @@
 node_modules/
-dist/
+dist//logs/
+code_out.txt
+code_structure.txt
+collect_code.ps1
+analyze_structure.ps1
+.gitignore
+.gitattributes
+.eslintrc.json
+.eslintignore
+GameTheory-Express.iml

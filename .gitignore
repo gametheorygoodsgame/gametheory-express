@@ -125,3 +125,8 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+logs/
+.idea/
+code_out.txt
+code_structure.txt
+.npmrc

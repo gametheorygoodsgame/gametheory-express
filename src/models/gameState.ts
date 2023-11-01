@@ -1,16 +1,15 @@
 import { v4 as UUIDv4 } from 'uuid';
 import NodeCache from 'node-cache';
+import { Game, Move, Player, MoveNumRedCardsEnum } from '@eikermannlfh/gametheoryapi';
 import { findOrThrow, GameNotFoundError, PlayerNotFoundError } from '../utils/findOrThrow';
-import { Player } from './player';
-import { Game } from './game';
-import { ValidNumRedCards } from './move';
 import { validateUUIDv4 } from '../utils/validatorUUIDv4';
+import logger from '../utils/logger';
 
 const globalState = new NodeCache({ useClones: false, stdTTL: 10800 });
 
 function getGame(gameId: string) {
-  const validGameId = validateUUIDv4(gameId);
-  return findOrThrow<Game, GameNotFoundError>(globalState.get(validGameId), GameNotFoundError);
+  // const validGameId = validateUUIDv4(gameId);
+  return findOrThrow<Game, GameNotFoundError>(globalState.get(gameId), GameNotFoundError);
 }
 
 function getAllGames(): Game[] {
@@ -19,56 +18,55 @@ function getAllGames(): Game[] {
   return Object.values(games) as Game[];
 }
 
-function addGame(numRounds: number) {
+function addGame(gameReq: Game) {
   const gameId: string = UUIDv4();
   const game: Game = {
     id: gameId,
     players: [],
-    turns: [],
+    potCards: [0],
+    cardHandValue: [1],
+    cardPotValue: [2],
     currentTurn: 0,
-    numTurns: numRounds,
+    numTurns: gameReq.numTurns,
   };
 
   globalState.set(gameId, game);
-  return gameId;
+  return game;
 }
 
 function deleteGame(gameId: string) {
   const validGameId = validateUUIDv4(gameId);
-  return globalState.del(validGameId);
+  return globalState.del(validGameId) > 0;
 }
 
 function addPlayer(gameId: string, name: string) {
-  const validGameId = validateUUIDv4(gameId);
+  // const validGameId = validateUUIDv4(gameId);
   const playerId = UUIDv4();
 
-  const game = getGame(validGameId);
-
-  if (game) {
-    if (game.currentTurn !== 0) {
-      throw new Error('Game has already started');
-    }
-
-    const playerList = game.players;
-    const player: Player = {
-      id: playerId,
-      name: name,
-      moves: [],
-      score: 0,
-    };
-
-    playerList.push(player);
-
-    return playerId;
+  const game = getGame(gameId);
+  if (game.currentTurn !== 0) {
+    throw new Error('Game has already started');
   }
+
+  const playerList = game.players;
+  const player: Player = {
+    id: playerId,
+    name,
+    moves: [],
+    score: 0,
+  };
+
+  playerList.push(player);
+
+  return player;
 }
 
 function getPlayer(gameId: string, playerId: string) {
   const validGameId = validateUUIDv4(gameId);
   const validPlayerId = validateUUIDv4(playerId);
   return findOrThrow<Player, PlayerNotFoundError>(
-      getGame(validGameId).players.find((currPlayer) => currPlayer.id === validPlayerId),
-      PlayerNotFoundError
+    getGame(validGameId).players.find((currPlayer) => currPlayer.id === validPlayerId),
+    PlayerNotFoundError,
   );
 }
 
@@ -90,48 +88,56 @@ function getNumTurns(gameId: string) {
   return game.numTurns;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function startNewTurn(gameId: string, redCardValue: number) {
+  /*
   const validGameId = validateUUIDv4(gameId);
-  const game: Game = gameState.getGame(validGameId);
+  const game: Game = getGame(validGameId);
 
-  game.turns[game.currentTurn] = redCardValue * game.players.reduce((total, player) => {
+  game.turns[game.currentTurn] = game.players.reduce((total, player) => {
     // Find the moves for the currentTurn for the current player
     const movesForCurrentTurn = player.moves.filter((move) => move.numTurn === game.currentTurn);
 
     // Sum the numRedCards for the currentTurn
     const numRedCardsForCurrentTurn = movesForCurrentTurn
-        .reduce((sum, move) => sum + move.numRedCards, 0);
+      .reduce((sum, move) => sum + move.numRedCards, 0);
 
     // Add the sum to the player's score
     player.score += numRedCardsForCurrentTurn;
 
     // Return the updated total
     return total + numRedCardsForCurrentTurn;
-  }, 0);
+  }, 0) * redCardValue;
 
   game.currentTurn++;
   return game.currentTurn;
+  */
 }
 
-function addMove(gameId: string, playerId: string, numRedCards: ValidNumRedCards) {
+function addMove(gameId: string, playerId: string, moveReq: Move) {
   const validGameId = validateUUIDv4(gameId);
   const validPlayerId = validateUUIDv4(playerId);
-  const game: Game = gameState.getGame(validGameId);
-  if (game.currentTurn === 0) return;
-  const player: Player = gameState.getPlayer(validGameId, validPlayerId);
-  player.moves[game.currentTurn - 1] = { numRedCards, numTurn: game.currentTurn };
+  const game: Game = getGame(validGameId);
+  if (game.currentTurn === 0) {
+    throw new Error('The game hasn\'t started yet.');
+  }
+  const player: Player = getPlayer(validGameId, validPlayerId);
+  const move: Move = { numRedCards: moveReq.numRedCards, numTurn: game.currentTurn };
+  player.moves[game.currentTurn] = move;
+  logger.debug(player);
+  return move;
 }
 
 async function waitForCurrentTurnChange(gameId: string): Promise<void> {
   const validGameId = validateUUIDv4(gameId);
   await new Promise((resolve, reject) => {
-    const game: Game = gameState.getGame(validGameId);
+    const game: Game = getGame(validGameId);
     const currentTurn = game.currentTurn.valueOf();
 
     const interval = setInterval(() => {
       if (game.currentTurn !== currentTurn) {
         clearInterval(interval);
-        const nextTurn = gameState.getCurrentTurn(validGameId);
+        const nextTurn = getCurrentTurn(validGameId);
         resolve(nextTurn);
       }
     }, 1000);

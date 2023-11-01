@@ -8,7 +8,7 @@ if (Test-Path -Path $outputFile) {
 
 # Define the directories to search recursively with absolute paths
 $directories = @(
-    "E:\Benutzer\eiker\Dokumente\GitHub\gametheory-express\src\models"
+    "E:\Benutzer\eiker\Dokumente\GitHub\gametheory-express\src\routes"
 )
 
 # Iterate over specified directories and their subdirectories for .ts files
