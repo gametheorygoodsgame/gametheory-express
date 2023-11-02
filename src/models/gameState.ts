@@ -90,17 +90,20 @@ function getNumTurns(gameId: string) {
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 function startNewTurn(gameId: string, redCardValue: number) {
-  /*
   const validGameId = validateUUIDv4(gameId);
   const game: Game = getGame(validGameId);
 
-  game.turns[game.currentTurn] = game.players.reduce((total, player) => {
+  game.potCards[game.currentTurn] = game.players.reduce((total, player) => {
     // Find the moves for the currentTurn for the current player
-    const movesForCurrentTurn = player.moves.filter((move) => move.numTurn === game.currentTurn);
+    const movesForCurrentTurn =
+        player.moves.filter((move) => move.numTurn === game.currentTurn);
 
     // Sum the numRedCards for the currentTurn
     const numRedCardsForCurrentTurn = movesForCurrentTurn
       .reduce((sum, move) => sum + move.numRedCards, 0);
+
+    // Set number of Cards in pot for current Turn
+    game.potCards[game.currentTurn] = numRedCardsForCurrentTurn;
 
     // Add the sum to the player's score
     player.score += numRedCardsForCurrentTurn;
@@ -148,6 +151,49 @@ async function waitForCurrentTurnChange(gameId: string): Promise<void> {
     }, 600000);
   });
 }
+
+/*
+type GameStatisticsItem = {redCardPotValue: number, numOfRedCardsPlayed: number};
+type GameStatisticsTotal = GameStatisticsItem[];
+type GameStatistics = {total: GameStatisticsTotal};
+
+export function getGameStatistics(gameId: string) {
+  const game = getGame(gameId);
+
+  const currentTurn = game.currentTurn;
+  const game: Game = {
+    id: '',
+    numTurns,
+    currentTurn: 0,
+    players: [],
+    cardHandValue: [1],
+    cardPotValue: [2],
+    potCards: [0],
+  };
+  const rounds = game.rounds;
+
+  if (!game.potCards || currentTurn <= 0) {
+    throw new Error('Rounds data not found for this game.');
+  }
+
+  const gameStatistics: GameStatistics = {total: []};
+  const gameStatisticsTotal: object[] = [];
+
+  for (let i = 1; i < currentTurn - 1; i++) {
+    let totalCardsThisTurn = 0;
+    game.players.forEach((value) => {
+      totalCardsThisTurn = value.moves[i].numRedCards;
+    })
+    const redCardValue = game.cardPotValue[i];
+    const currentTurnObj: GameStatisticsItem =
+        {redCardPotValue: game.cardPotValue[i], numOfRedCardsPlayed: game.potCards[i]};
+    gameStatistics.total.push(currentTurnObj);
+  }
+
+  return gameStatistics;
+}
+
+ */
 
 export const gameState = {
   getGame,
