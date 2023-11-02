@@ -89,32 +89,32 @@ function getNumTurns(gameId: string) {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-function startNewTurn(gameId: string, redCardValue: number) {
+function calculateScoresAndPot(gameId: string) {
   const validGameId = validateUUIDv4(gameId);
   const game: Game = getGame(validGameId);
 
-  game.potCards[game.currentTurn] = game.players.reduce((total, player) => {
-    // Find the moves for the currentTurn for the current player
-    const movesForCurrentTurn =
-        player.moves.filter((move) => move.numTurn === game.currentTurn);
+  game.players.forEach((value, index) => {
+    game.potCards[game.currentTurn] = value.moves[game.currentTurn].numRedCards;
+    game.players[index].score += 2 - value.moves[game.currentTurn].numRedCards
+        * game.cardHandValue[game.currentTurn];
+  });
 
-    // Sum the numRedCards for the currentTurn
-    const numRedCardsForCurrentTurn = movesForCurrentTurn
-      .reduce((sum, move) => sum + move.numRedCards, 0);
+  game.players.forEach((value, index) => {
+    game.players[index].score += (game.potCards[game.currentTurn]
+        * game.cardPotValue[game.currentTurn]) / game.players.length;
+  });
 
-    // Set number of Cards in pot for current Turn
-    game.potCards[game.currentTurn] = numRedCardsForCurrentTurn;
+  return game;
+}
 
-    // Add the sum to the player's score
-    player.score += numRedCardsForCurrentTurn;
+function startNewTurn(gameId: string, gameReq: Game) {
+  calculateScoresAndPot(gameId);
+  const gameRes = getGame(gameId);
+  gameRes.cardHandValue = gameReq.cardHandValue;
+  gameRes.cardPotValue = gameReq.cardHandValue;
+  gameRes.currentTurn++;
 
-    // Return the updated total
-    return total + numRedCardsForCurrentTurn;
-  }, 0) * redCardValue;
-
-  game.currentTurn++;
-  return game.currentTurn;
-  */
+  return gameRes;
 }
 
 function addMove(gameId: string, playerId: string, moveReq: Move) {

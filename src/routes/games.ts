@@ -45,41 +45,22 @@ gameRouter.delete('/:gameId', uuidValidationMiddleware, (req: Request, res: Resp
   }
 });
 
-/*
 gameRouter.patch(
   '/:gameId',
   validateGameObject,
   uuidValidationMiddleware,
   (req: Request, res: Response) => {
     try {
-      const gameReq: Game = req.body;
       const { gameId } = req.params;
-      if (gameState.deleteGame(gameId)) {
-        logger.info(`Deleted game: ${gameId}`);
-        res.status(204).send({ name: 'Deleted.', message: `Successfully deleted ${gameId}.` });
-      }
+      const gameReq: Game = req.body;
+      const gameRes = gameState.startNewTurn(gameId, gameReq);
+      logger.info(`Changed game: ${JSON.stringify(gameRes)}`);
+      res.status(200).json(gameRes);
     } catch (error) {
-      const e = error as Error;
-      logger.error({ name: e.name, message: e.message, stack: e.stack });
-      res.status(500).send({ message: e.message });
+      handleErrors(res, error as Error);
     }
   },
 );
- */
-
-/*
-gameRouter.post('/:gameId/startNewTurn'
-, uuidValidationMiddleware, (req: Request, res: Response) => {
-  try {
-    const { gameId } = req.params;
-    const numTurn: number = gameState.startNewTurn(gameId, 2);
-    logger.info(`Game: ${gameId} progressed from turn #${numTurn - 1} to # ${numTurn}.`);
-    res.status(200).json({ numTurn });
-  } catch (error) {
-    handleErrors(res, error as Error);
-  }
-});
-*/
 
 gameRouter.use('/:gameId/moves', uuidValidationMiddleware, moveRouter);
 gameRouter.use('/', playerRouter);
