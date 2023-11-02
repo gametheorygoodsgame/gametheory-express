@@ -13,9 +13,17 @@ export function validateGame(game: any): Game {
       || (game.players.length > 0 && !game.players.every(validatePlayer))) {
     throw new ValidationError('Players must be an array of valid players');
   }
-  if (!Array.isArray(game.turns)
-      || (game.turns.length > 0 && !game.turns.every((turn: any) => typeof turn === 'number'))) {
-    throw new ValidationError('Turns must be an array of numbers');
+  if (!Array.isArray(game.potCards)
+      || (game.potCards.length > 0 && !game.potCards.every((turn: any) => typeof turn === 'number'))) {
+    throw new ValidationError('PotCards must be an array of numbers');
+  }
+  if (!Array.isArray(game.cardPotValue)
+      || (game.cardPotValue.length > 0 && !game.cardPotValue.every((turn: any) => typeof turn === 'number'))) {
+    throw new ValidationError('CardPotValue must be an array of numbers');
+  }
+  if (!Array.isArray(game.cardHandValue)
+      || (game.cardHandValue.length > 0 && !game.cardHandValue.every((turn: any) => typeof turn === 'number'))) {
+    throw new ValidationError('CardHandValue must be an array of numbers');
   }
   if (typeof game.currentTurn !== 'number') {
     throw new ValidationError('CurrentTurn must be a number');
