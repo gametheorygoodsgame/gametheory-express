@@ -10,7 +10,7 @@ turnRouter.post('/', async (req: Request, res: Response) => {
     const { gameId } = req.params;
     const redCardValue = parseInt(req.body.redCardValue);
 
-    const currentRound = gameState.startNewTurn(gameId, redCardValue);
+    const currentRound = gameState.startNewTurn(gameId, gameState.getGame(gameId));
     res.status(200).json({ currentRound });
   } catch (error) {
     handleErrors(res, error as Error);

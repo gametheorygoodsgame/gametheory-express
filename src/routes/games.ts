@@ -45,6 +45,17 @@ gameRouter.delete('/:gameId', uuidValidationMiddleware, (req: Request, res: Resp
   }
 });
 
+// DELETE route to delete a game
+gameRouter.get('/:gameId', uuidValidationMiddleware, (req: Request, res: Response) => {
+  try {
+    const { gameId } = req.params;
+    return gameState.getGame(gameId);
+  } catch (error) {
+    handleErrors(res, error as Error);
+  }
+});
+
+// PATCH route to change a game
 gameRouter.patch(
   '/:gameId',
   validateGameObject,
