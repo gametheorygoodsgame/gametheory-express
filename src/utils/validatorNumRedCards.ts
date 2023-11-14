@@ -1,4 +1,4 @@
-import { MoveNumRedCardsEnum } from '@eikermannlfh/gametheoryapi';
+import { MoveNumRedCardsEnum } from '@gametheorygoodsgame/gametheory-openapi';
 import { ValidationError } from './validationError';
 
 export function validateNumRedCards(number: number): number {

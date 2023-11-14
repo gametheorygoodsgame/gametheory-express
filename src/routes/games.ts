@@ -1,5 +1,5 @@
 import express, { Request, Response } from 'express';
-import { Game } from '@eikermannlfh/gametheoryapi';
+import { Game } from '@gametheorygoodsgame/gametheory-openapi';
 import { gameState } from '../models/gameState';
 import { uuidValidationMiddleware } from '../middleware/uuid';
 import moveRouter from './moves';

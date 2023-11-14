@@ -1,6 +1,6 @@
 import { v4 as UUIDv4 } from 'uuid';
 import NodeCache from 'node-cache';
-import { Game, Move, Player, MoveNumRedCardsEnum } from '@eikermannlfh/gametheoryapi';
+import { Game, Move, Player, MoveNumRedCardsEnum } from '@gametheorygoodsgame/gametheory-openapi';
 import { findOrThrow, GameNotFoundError, PlayerNotFoundError } from '../utils/findOrThrow';
 import { validateUUIDv4 } from '../utils/validatorUUIDv4';
 import logger from '../utils/logger';

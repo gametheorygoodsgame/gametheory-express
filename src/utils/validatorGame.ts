@@ -1,4 +1,4 @@
-import { Game } from '@eikermannlfh/gametheoryapi';
+import { Game } from '@gametheorygoodsgame/gametheory-openapi';
 import { ValidationError } from './validationError';
 import { validatePlayer } from './validatorPlayer';
 

@@ -68,7 +68,7 @@
     "typescript": "^5.2.2"
   },
   "dependencies": {
-    "@eikermannlfh/gametheoryapi": "^0.0.19",
+    "@gametheorygoodsgame/gametheory-openapi": "^0.0.19",
     "body-parser": "^1.20.2",
     "camelcase": "^8.0.0",
     "cors": "^2.8.5",

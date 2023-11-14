@@ -1,4 +1,4 @@
-import { Move } from '@eikermannlfh/gametheoryapi';
+import { Move } from '@gametheorygoodsgame/gametheory-openapi';
 import { ValidationError } from './validationError';
 
 export function validateMove(move: any): Move {
