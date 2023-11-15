@@ -93,16 +93,16 @@ function calculateScoresAndPot(gameId: string) {
   const validGameId = validateUUIDv4(gameId);
   const game: Game = getGame(validGameId);
 
-  game.players.forEach((value, index) => {
-    game.potCards[game.currentTurn] = value.moves[game.currentTurn].numRedCards;
-    game.players[index].score += 2 - value.moves[game.currentTurn].numRedCards
+  /*game.players.forEach((value, index) => {
+    game.potCards[game.currentTurn] = value.moves[game.currentTurn].numRedCards || 0;
+    game.players[index].score += 2 - (value.moves[game.currentTurn].numRedCards || 0)
         * game.cardHandValue[game.currentTurn];
   });
 
   game.players.forEach((value, index) => {
     game.players[index].score += (game.potCards[game.currentTurn]
         * game.cardPotValue[game.currentTurn]) / game.players.length;
-  });
+  });*/
 
   return game;
 }
@@ -125,7 +125,7 @@ function addMove(gameId: string, playerId: string, moveReq: Move) {
     throw new Error('The game hasn\'t started yet.');
   }
   const player: Player = getPlayer(validGameId, validPlayerId);
-  const move: Move = { numRedCards: moveReq.numRedCards, numTurn: game.currentTurn };
+  const move: Move = { numRedCards: moveReq.numRedCards || 0, numTurn: game.currentTurn };
   player.moves[game.currentTurn] = move;
   logger.debug(player);
   return move;

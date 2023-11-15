@@ -20,6 +20,17 @@ gameRouter.get('/', (req: Request, res: Response) => {
   }
 });
 
+// GET route to get a game by Id
+gameRouter.get('/:gameId', uuidValidationMiddleware, (req: Request, res: Response) => {
+  try {
+    const { gameId } = req.params;
+    res.status(200).json(gameState.getGame(gameId));
+    logger.info('Retrieved list of games.');
+  } catch (error) {
+    handleErrors(res, error as Error);
+  }
+});
+
 // POST route to add a game
 gameRouter.post('/', validateGameObject, async (req: Request, res: Response) => {
   try {
