@@ -52,7 +52,7 @@ function addPlayer(gameId: string, name: string) {
   const player: Player = {
     id: playerId,
     name,
-    moves: [],
+    moves: [{numTurn: 0, numRedCards: 0}],
     score: 0,
   };
 
@@ -93,25 +93,50 @@ function calculateScoresAndPot(gameId: string) {
   const validGameId = validateUUIDv4(gameId);
   const game: Game = getGame(validGameId);
 
-  /*game.players.forEach((value, index) => {
-    game.potCards[game.currentTurn] = value.moves[game.currentTurn].numRedCards || 0;
-    game.players[index].score += 2 - (value.moves[game.currentTurn].numRedCards || 0)
+  game.players.forEach((value, index) => {
+    logger.debug(game);
+    logger.debug(`PotCards[${game.currentTurn}]: ${game.potCards[game.currentTurn]}`);
+    logger.debug(`NumRedCards[${game.currentTurn}]: ${value.moves[game.currentTurn].numRedCards}`);
+    logger.debug(`${game.players[index].name} score: ${game.players[index].score}`);
+
+    game.potCards[game.currentTurn] = (game.potCards[game.currentTurn] || 0) +
+        (value.moves[game.currentTurn].numRedCards || 0);
+    game.players[index].score += (2 - (value.moves[game.currentTurn].numRedCards || 0))
         * game.cardHandValue[game.currentTurn];
   });
 
   game.players.forEach((value, index) => {
-    game.players[index].score += (game.potCards[game.currentTurn]
-        * game.cardPotValue[game.currentTurn]) / game.players.length;
-  });*/
+    logger.debug(`${game.players[index].name} score: ${game.players[index].score}`);
+
+    game.players[index].score = (game.players[index].score || 0) +
+        (game.potCards[game.currentTurn]
+        * game.cardPotValue[game.currentTurn]);
+  });
 
   return game;
 }
 
 function startNewTurn(gameId: string, gameReq: Game) {
-  calculateScoresAndPot(gameId);
+  if(gameReq.currentTurn !== 0) {
+    calculateScoresAndPot(gameId);
+  }
   const gameRes = getGame(gameId);
-  gameRes.cardHandValue = gameReq.cardHandValue;
-  gameRes.cardPotValue = gameReq.cardHandValue;
+
+  logger.debug(JSON.stringify(gameReq));
+
+  if(gameReq.cardHandValue[gameReq.currentTurn + 1]) {
+    gameRes.cardHandValue.push(gameReq.cardHandValue[gameReq.currentTurn + 1]);
+  }
+  else {
+    gameRes.cardHandValue.push(1);
+  }
+
+  if(gameReq.cardPotValue[gameReq.currentTurn + 1]) {
+    gameRes.cardPotValue.push(gameReq.cardPotValue[gameReq.currentTurn + 1]);
+  }
+  else {
+    gameRes.cardPotValue.push(1);
+  }
   gameRes.currentTurn++;
 
   return gameRes;

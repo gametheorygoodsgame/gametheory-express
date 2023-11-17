@@ -56,7 +56,7 @@ gameRouter.delete('/:gameId', uuidValidationMiddleware, (req: Request, res: Resp
   }
 });
 
-// DELETE route to delete a game
+// GET route to delete a game by ID
 gameRouter.get('/:gameId', uuidValidationMiddleware, (req: Request, res: Response) => {
   try {
     const { gameId } = req.params;
