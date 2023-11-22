@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { validateGame } from '../utils/validatorGame';
 import {ValidationError} from '../utils/validationError';
 
-export async function validateGameObject(req: Request, res: Response, next: NextFunction) {
+export async function validateGameMiddleware(req: Request, res: Response, next: NextFunction) {
     try {
         validateGame(req.body);
         next();

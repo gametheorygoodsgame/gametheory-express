@@ -4,13 +4,13 @@ import { gameState } from '../models/gameState';
 import { uuidValidationMiddleware } from '../middleware/uuid';
 import moveRouter from './moves';
 import playerRouter from './players';
-import { validateGameObject } from '../middleware/validateGame';
+import { validateGameMiddleware } from '../middleware/validateGame';
 import logger from '../utils/logger';
 import { handleErrors } from '../utils/handleErros';
 
 const gameRouter = express.Router();
 
-// GET route to get game list
+// GET alle Games
 gameRouter.get('/', (req: Request, res: Response) => {
   try {
     res.status(200).json(gameState.getAllGames());
@@ -20,19 +20,19 @@ gameRouter.get('/', (req: Request, res: Response) => {
   }
 });
 
-// GET route to get a game by Id
+// GET Game by Id
 gameRouter.get('/:gameId', uuidValidationMiddleware, (req: Request, res: Response) => {
   try {
     const { gameId } = req.params;
     res.status(200).json(gameState.getGame(gameId));
-    logger.info('Retrieved list of games.');
+    logger.info(`Retrieved game: ${gameId}.`);
   } catch (error) {
     handleErrors(res, error as Error);
   }
 });
 
-// POST route to add a game
-gameRouter.post('/', validateGameObject, async (req: Request, res: Response) => {
+// POST Game hinzufügen
+gameRouter.post('/', validateGameMiddleware, async (req: Request, res: Response) => {
   try {
     const gameReq: Game = req.body;
     const gameRes = gameState.addGame(gameReq);
@@ -43,7 +43,7 @@ gameRouter.post('/', validateGameObject, async (req: Request, res: Response) => 
   }
 });
 
-// DELETE route to delete a game
+// DELETE Game löschen
 gameRouter.delete('/:gameId', uuidValidationMiddleware, (req: Request, res: Response) => {
   try {
     const { gameId } = req.params;
@@ -56,20 +56,10 @@ gameRouter.delete('/:gameId', uuidValidationMiddleware, (req: Request, res: Resp
   }
 });
 
-// GET route to delete a game by ID
-gameRouter.get('/:gameId', uuidValidationMiddleware, (req: Request, res: Response) => {
-  try {
-    const { gameId } = req.params;
-    return gameState.getGame(gameId);
-  } catch (error) {
-    handleErrors(res, error as Error);
-  }
-});
-
-// PATCH route to change a game
+// PATCH Game ändern
 gameRouter.patch(
   '/:gameId',
-  validateGameObject,
+  validateGameMiddleware,
   uuidValidationMiddleware,
   (req: Request, res: Response) => {
     try {
@@ -84,6 +74,7 @@ gameRouter.patch(
   },
 );
 
+// Subrouten hinzufügen
 gameRouter.use('/:gameId/moves', uuidValidationMiddleware, moveRouter);
 gameRouter.use('/', playerRouter);
 

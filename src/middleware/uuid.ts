@@ -7,7 +7,7 @@ export const uuidValidationMiddleware = (req: Request, res: Response, next: Next
 
   const errors = [];
 
-  // Validate game ID if present
+  // GameId validieren, falls vorhanden
   if (gameId) {
     try {
       validateUUIDv4(gameId);
@@ -16,7 +16,7 @@ export const uuidValidationMiddleware = (req: Request, res: Response, next: Next
     }
   }
 
-  // Validate player ID if present
+  // PlayerId validieren, falls vorhanden
   if (playerId) {
     try {
       validateUUIDv4(playerId);
@@ -25,7 +25,7 @@ export const uuidValidationMiddleware = (req: Request, res: Response, next: Next
     }
   }
 
-  // Check if any errors occurred
+  // Wenn Fehler aufgetreten sind, diese ausgeben
   if (errors.length > 0) {
     return res.status(400).json({ errors });
   }

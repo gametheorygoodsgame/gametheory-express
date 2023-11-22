@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { ValidationError } from '../utils/validationError';
 import { validateMove } from '../utils/validatorMove';
 
-export async function validateMoveObject(req: Request, res: Response, next: NextFunction) {
+export async function validateMoveMiddleware(req: Request, res: Response, next: NextFunction) {
   try {
     validateMove(req.body);
     next();

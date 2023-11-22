@@ -3,14 +3,14 @@ import { gameState } from '../models/gameState';
 import { GameNotFoundError } from '../utils/findOrThrow';
 import moveRouter from './moves';
 import { uuidValidationMiddleware } from '../middleware/uuid';
-import { validatePlayerObject } from '../middleware/validatePlayer';
+import { validatePlayerMiddleware } from '../middleware/validatePlayer';
 import logger from '../utils/logger';
 import { handleErrors } from '../utils/handleErros';
 
 const playerRouter = express.Router();
 
-// POST route to add a player to a game
-playerRouter.post('/:gameId/players', uuidValidationMiddleware, validatePlayerObject, async (req: Request, res: Response) => {
+// POST Player hinzufügen
+playerRouter.post('/:gameId/players', uuidValidationMiddleware, validatePlayerMiddleware, async (req: Request, res: Response) => {
   const player = req.body;
   logger.debug(player);
   const { gameId } = req.params;
@@ -25,7 +25,7 @@ playerRouter.post('/:gameId/players', uuidValidationMiddleware, validatePlayerOb
   }
 });
 
-// GET route to get all players in a game
+// GET all Players
 playerRouter.get('/:gameId/players', uuidValidationMiddleware, (req: Request, res: Response) => {
   const { gameId } = req.params;
 
@@ -44,7 +44,7 @@ playerRouter.get('/:gameId/players', uuidValidationMiddleware, (req: Request, re
   }
 });
 
-// Add sub-routers for /moves and /moves/turns/{numTurn}
+// Subrouten hinzufügen
 playerRouter.use('/', moveRouter);
 
 export default playerRouter;

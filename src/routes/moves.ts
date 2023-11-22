@@ -1,16 +1,15 @@
 import express, { Request, Response } from 'express';
 import { Move } from '@gametheorygoodsgame/gametheory-openapi';
 import { gameState } from '../models/gameState';
-import turnRouter from './turns';
-import { validateMoveObject } from '../middleware/validateMove';
+import { validateMoveMiddleware } from '../middleware/validateMove';
 import { uuidValidationMiddleware } from '../middleware/uuid';
 import logger from '../utils/logger';
 import { handleErrors } from '../utils/handleErros';
 
 const moveRouter = express.Router();
 
-// POST route to add player moves
-moveRouter.post('/:gameId/players/:playerId/moves', uuidValidationMiddleware, validateMoveObject, async (req: Request, res: Response) => {
+// POST Move hinzufügen
+moveRouter.post('/:gameId/players/:playerId/moves', uuidValidationMiddleware, validateMoveMiddleware, async (req: Request, res: Response) => {
   try {
     const move: Move = req.body;
     const { gameId } = req.params;
@@ -24,19 +23,5 @@ moveRouter.post('/:gameId/players/:playerId/moves', uuidValidationMiddleware, va
     handleErrors(res, error as Error);
   }
 });
-
-// GET route to get current round
-moveRouter.get('/', async (req: Request, res: Response) => {
-  const { gameId } = req.params;
-
-  try {
-    const round = await gameState.waitForCurrentTurnChange(gameId);
-    res.status(200).json({ currentRound: round });
-  } catch (error) {
-    handleErrors(res, error as Error);
-  }
-});
-
-moveRouter.use('/turns/:numTurn', turnRouter);
 
 export default moveRouter;
