@@ -13,6 +13,20 @@ function getGame(gameId: string) {
   return findOrThrow<Game, GameNotFoundError>(globalState.get(gameId), GameNotFoundError);
 }
 
+//aktuelles datum und zeit erhalten und in den Spieltitel umwandeln
+function getCurrentDateTime(): string{
+  const currentDate = new Date();
+
+    const year = currentDate.getFullYear();
+    const month = (currentDate.getMonth() + 1).toString().padStart(2, '0');
+    const day = currentDate.getDate().toString().padStart(2, '0');
+
+    const hours = currentDate.getHours().toString().padStart(2, '0');
+    const minutes = currentDate.getMinutes().toString().padStart(2, '0');
+
+    return `${year}/${month}/${day} ${hours}:${minutes}`;
+}
+
 function getAllGames(): Game[] {
   // Finde alle gameIds
   const gameIds = globalState.keys();
@@ -28,6 +42,7 @@ function addGame(gameReq: Game) {
   // Game instanziieren
   const game: Game = {
     id: gameId,
+    name: getCurrentDateTime(),
     players: [],
     potCards: [0],
     cardHandValue: [1],
