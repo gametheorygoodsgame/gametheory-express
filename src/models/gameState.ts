@@ -180,6 +180,7 @@ function startNewTurn(gameId: string, gameReq: Game) {
     gameRes.cardPotValue.push(1);
     logger.debug(`Set card pot value for turn #${gameReq.currentTurn + 1} to 1.`);
   }
+
   gameRes.currentTurn++;
 
   return gameRes;
@@ -217,6 +218,24 @@ function addMove(gameId: string, playerId: string, moveReq: Move) {
   return move;
 }
 
+function isGameFinished(gameId: string) {
+  let game = getGame(gameId);
+  game.isFinished = (getCurrentTurn(gameId) >= getNumTurns(gameId))
+}
+
+function getNumFinishedPlayers(gameId: string) {
+  let count = 0;
+  let game = getGame(gameId);
+  game?.players.forEach((player) => {
+    if (player.moves[game?.currentTurn]) {
+      count++;
+    }
+  });
+  return count;
+}
+
+
+
 export const gameState = {
   getGame,
   getAllGames,
@@ -229,4 +248,5 @@ export const gameState = {
   getNumTurns,
   addMove,
   startNewTurn,
+  isGameFinished,
 };
