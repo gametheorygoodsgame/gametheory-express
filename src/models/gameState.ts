@@ -42,7 +42,7 @@ function addGame(gameReq: Game) {
   // Game instanziieren
   const game: Game = {
     id: gameId,
-    name: getCurrentDateTime(),
+    name: (gameReq.name === '') ? getCurrentDateTime() : gameReq.name, //sets current time as game name if a name has not existed before
     players: [],
     potCards: [0],
     cardHandValue: [1],
