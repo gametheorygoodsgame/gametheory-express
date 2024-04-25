@@ -62,7 +62,7 @@ function addPlayer(gameId: string, name: string) {
   const player: Player = {
     id: playerId,
     name,
-    moves: [{numTurn: 0, numRedCards: 0}],
+    moves: [{ numTurn: 0, numRedCards: 0 }],
     score: 0,
   };
 
@@ -119,8 +119,8 @@ function calculateScoresAndPot(gameId: string) {
     logger.debug(`NumRedCards[${game.currentTurn}]: ${player.moves[game.currentTurn].numRedCards}`);
     logger.debug(`${game.players[index].name} score before calculation: ${game.players[index].score}`);
 
-    /*game.potCards[game.currentTurn] = (game.potCards[game.currentTurn] || 0) +
-        (player.moves[game.currentTurn].numRedCards || 0);*/
+    /* game.potCards[game.currentTurn] = (game.potCards[game.currentTurn] || 0) +
+        (player.moves[game.currentTurn].numRedCards || 0); */
 
     // 2 - die Anzahl der gespielten Karten oder 0 * den Kartenwert auf der Hand zum Score addieren
     game.players[index].score += (2 - (player.moves[game.currentTurn].numRedCards || 0))
@@ -129,60 +129,66 @@ function calculateScoresAndPot(gameId: string) {
     logger.debug(`${game.players[index].name} score after hand calculation: ${game.players[index].score}`);
 
     // Den Pott (Anzahl Karten * Kartenwert) zum Score addieren
-    game.players[index].score = (game.players[index].score || 0) +
-        (game.potCards[game.currentTurn]
+    game.players[index].score = (game.players[index].score || 0)
+        + (game.potCards[game.currentTurn]
             * game.cardPotValue[game.currentTurn]);
 
     logger.debug(`${game.players[index].name} score after pot calculation: ${game.players[index].score}`);
   });
 
-  /*game.players.forEach((value, index) => {
+  /* game.players.forEach((value, index) => {
     logger.debug(`${game.players[index].name} score: ${game.players[index].score}`);
 
     game.players[index].score = (game.players[index].score || 0) +
         (game.potCards[game.currentTurn]
         * game.cardPotValue[game.currentTurn]);
-  });*/
+  }); */
 
   return game;
 }
 
+function isGameFinished(gameId: string) {
+  const game = getGame(gameId);
+  game.isFinished = (getCurrentTurn(gameId) >= getNumTurns(gameId));
+  return game.isFinished;
+}
+
 function startNewTurn(gameId: string, gameReq: Game) {
   // Wenn dies nicht die Vorrunde ist, berechne die Scores
-  if(gameReq.currentTurn !== 0) {
+  if (gameReq.currentTurn !== 0) {
     calculateScoresAndPot(gameId);
   }
 
   const gameRes = getGame(gameId);
 
-  // Ist der Kartenwert der Hand für die Nächste Runde gesetzt?
-  if(gameReq.cardHandValue[gameReq.currentTurn + 1]) {
-    logger.debug(`Incoming card hand Value is ${gameReq.cardHandValue[gameReq.currentTurn + 1]}`);
-    // Wenn ja, füge ihn an das Array an
-    gameRes.cardHandValue.push(gameReq.cardHandValue[gameReq.currentTurn + 1]);
-    logger.debug(`Set card hand value hand for turn #${gameReq.currentTurn + 1} to ${gameReq.cardHandValue[gameReq.currentTurn + 1]}.`);
-  }
-  else {
+  if (!isGameFinished(gameId)) {
+    // Ist der Kartenwert der Hand für die Nächste Runde gesetzt?
+    if (gameReq.cardHandValue[gameReq.currentTurn + 1]) {
+      logger.debug(`Incoming card hand Value is ${gameReq.cardHandValue[gameReq.currentTurn + 1]}`);
+      // Wenn ja, füge ihn an das Array an
+      gameRes.cardHandValue.push(gameReq.cardHandValue[gameReq.currentTurn + 1]);
+      logger.debug(`Set card hand value hand for turn #${gameReq.currentTurn + 1} to ${gameReq.cardHandValue[gameReq.currentTurn + 1]}.`);
+    } else {
     // Wenn nein, füge 1 an das Array an
-    gameRes.cardHandValue.push(1);
-    logger.debug(`Set card hand value for turn #${gameReq.currentTurn + 1} to 1.`);
-  }
+      gameRes.cardHandValue.push(1);
+      logger.debug(`Set card hand value for turn #${gameReq.currentTurn + 1} to 1.`);
+    }
 
-  // Ist der Kartenwert des Pots für die Nächste Runde gesetzt?
-  if(gameReq.cardPotValue[gameReq.currentTurn + 1]) {
-    logger.debug(`Incoming card pot Value is ${gameReq.cardPotValue[gameReq.currentTurn + 1]}`);
-    // Wenn ja, füge ihn an das Array an
-    gameRes.cardPotValue.push(gameReq.cardPotValue[gameReq.currentTurn + 1]);
-    logger.debug(`Set card pot value hand for turn #${gameReq.currentTurn + 1} to ${gameReq.cardPotValue[gameReq.currentTurn + 1]}.`);
-  }
-  else {
+    // Ist der Kartenwert des Pots für die Nächste Runde gesetzt?
+    if (gameReq.cardPotValue[gameReq.currentTurn + 1]) {
+      logger.debug(`Incoming card pot Value is ${gameReq.cardPotValue[gameReq.currentTurn + 1]}`);
+      // Wenn ja, füge ihn an das Array an
+      gameRes.cardPotValue.push(gameReq.cardPotValue[gameReq.currentTurn + 1]);
+      logger.debug(`Set card pot value hand for turn #${gameReq.currentTurn + 1} to ${gameReq.cardPotValue[gameReq.currentTurn + 1]}.`);
+    } else {
     // Wenn nein, füge 1 an das Array an
-    gameRes.cardPotValue.push(1);
-    logger.debug(`Set card pot value for turn #${gameReq.currentTurn + 1} to 1.`);
+      gameRes.cardPotValue.push(1);
+      logger.debug(`Set card pot value for turn #${gameReq.currentTurn + 1} to 1.`);
+    }
+
+    // eslint-disable-next-line no-plusplus
+    gameRes.currentTurn++;
   }
-
-  gameRes.currentTurn++;
-
   return gameRes;
 }
 
@@ -205,7 +211,7 @@ function addMove(gameId: string, playerId: string, moveReq: Move) {
   // Wenn die Anzahl roter Karten nicht definiert ist, setze sie 0
   const move: Move = { numRedCards: moveReq.numRedCards || 0, numTurn: game.currentTurn };
   player.moves[game.currentTurn] = move;
-  logger.debug(`Added move ${move} to Player ${player.name}(${player.id}) in turn #${game.currentTurn}.`)
+  logger.debug(`Added move ${move} to Player ${player.name}(${player.id}) in turn #${game.currentTurn}.`);
 
   // Füge die roten Karten dem Pott dieser Runde hinzu
   // Wenn die Anzahl roter Karten nicht definiert ist, setze sie 0
@@ -213,28 +219,22 @@ function addMove(gameId: string, playerId: string, moveReq: Move) {
     game.potCards[game.currentTurn] = 0;
   }
   game.potCards[game.currentTurn] += move.numRedCards;
-  logger.info(`Added ${move.numRedCards} to pot for turn #${game.currentTurn}.`)
+  logger.info(`Added ${move.numRedCards} to pot for turn #${game.currentTurn}.`);
 
   return move;
 }
 
-function isGameFinished(gameId: string) {
-  let game = getGame(gameId);
-  game.isFinished = (getCurrentTurn(gameId) >= getNumTurns(gameId))
-}
-
 function getNumFinishedPlayers(gameId: string) {
   let count = 0;
-  let game = getGame(gameId);
+  const game = getGame(gameId);
   game?.players.forEach((player) => {
     if (player.moves[game?.currentTurn]) {
+      // eslint-disable-next-line no-plusplus
       count++;
     }
   });
   return count;
 }
-
-
 
 export const gameState = {
   getGame,
