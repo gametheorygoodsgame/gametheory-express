@@ -132,3 +132,6 @@ code_structure.txt
 .npmrc
 package-lock.json
 package-lock.json
+ts-traces/analysis.txt
+ts-traces/trace.json
+ts-traces/types.json
