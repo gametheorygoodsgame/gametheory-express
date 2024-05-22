@@ -8,6 +8,8 @@ import logger from './utils/logger';
 import gameRouter from './routes/games';
 import playerRouter from './routes/players';
 import moveRouter from './routes/moves';
+import path from "path";
+import favicon from 'serve-favicon';
 
 const PORT = 30167;
 
@@ -18,6 +20,7 @@ admin.initializeApp({
 });
 
 // Middleware konfigurieren
+server.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 server.use(cors({ origin: true }));
 server.use(bodyParser.urlencoded({ extended: true }));
 server.use(bodyParser.json());
