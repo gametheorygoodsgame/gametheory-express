@@ -21,7 +21,7 @@ admin.initializeApp({
 
 // Middleware konfigurieren
 server.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
-server.use(cors({ origin: true }));
+server.use(cors({ origin: "*" }));
 server.use(bodyParser.urlencoded({ extended: true }));
 server.use(bodyParser.json());
 server.use(morganMiddleware);
