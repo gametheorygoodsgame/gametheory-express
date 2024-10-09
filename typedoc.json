@@ -1,0 +1,6 @@
+{
+    "entryPoints": ["./src/server.ts"],
+    "out": "./docs",
+    "readme": "README.md",
+    "exclude": ["node_modules/**/*"]
+}
