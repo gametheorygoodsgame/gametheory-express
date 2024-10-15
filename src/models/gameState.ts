@@ -134,8 +134,10 @@ function calculateScoresAndPot(gameId: string) {
     logger.debug(`NumRedCards[${game.currentTurn}]: ${player.moves[game.currentTurn].numRedCards}`);
     logger.debug(`${game.players[index].name} score before calculation: ${game.players[index].score}`);
 
-    /* game.potCards[game.currentTurn] = (game.potCards[game.currentTurn] || 0) +
-        (player.moves[game.currentTurn].numRedCards || 0); */
+    /*
+      game.potCards[game.currentTurn] = (game.potCards[game.currentTurn] || 0) +
+      (player.moves[game.currentTurn].numRedCards || 0);
+    */
 
     // 2 - die Anzahl der gespielten Karten oder 0 * den Kartenwert auf der Hand zum Score addieren
     game.players[index].score += (2 - (player.moves[game.currentTurn].numRedCards || 0))

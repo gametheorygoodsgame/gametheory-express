@@ -1,3 +1,8 @@
+/**
+ *
+ * @param value
+ * @param errorClass
+ */
 export function findOrThrow<T, ErrorType extends Error>(
     value: T | undefined,
     errorClass: new () => ErrorType
