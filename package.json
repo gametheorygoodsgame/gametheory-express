@@ -7,7 +7,8 @@
     "build": "tsc",
     "dev": "nodemon",
     "eslint": "eslint --color --ext .html,.js,.json,.jsx,.md *.* src",
-    "eslint:fix": "npm run eslint -- --fix"
+    "eslint:fix": "npm run eslint -- --fix",
+    "start": "node dist/server.js"
   },
   "nodemonConfig": {
     "watch": [
