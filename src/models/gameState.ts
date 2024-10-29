@@ -49,6 +49,7 @@ function addGame(gameReq: Game) {
     cardPotValue: [2],
     currentTurn: 0,
     numTurns: gameReq.numTurns,
+    isFinished: false
   };
 
   // Game im State speichern
