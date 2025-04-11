@@ -254,7 +254,7 @@ function getNumFinishedPlayers(gameId: string) {
   return count;
 }
 
-function setWinner(gameId: string): string {
+function setWinner(gameId: string): Player {
   const validGameId = validateUUIDv4(gameId);
   const game = getGame(validGameId);
 
@@ -273,10 +273,10 @@ function setWinner(gameId: string): string {
   const selectedWinner = game.players[randomIndex];
 
   // Gewinner setzen
-  game.winner = selectedWinner.name;
+  game.winner = selectedWinner;
   logger.info(`Zufällig gewählter Gewinner für Spiel ${gameId}: ${selectedWinner.name}`);
 
-  return selectedWinner.name;
+  return selectedWinner;
 }
 
 

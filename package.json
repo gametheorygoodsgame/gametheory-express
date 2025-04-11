@@ -71,7 +71,7 @@
     "typescript": "^5.2.2"
   },
   "dependencies": {
-    "@gametheorygoodsgame/gametheory-openapi": "^0.0.36",
+    "@gametheorygoodsgame/gametheory-openapi": "^0.0.40",
     "axios": "^1.6.8",
     "body-parser": "^1.20.2",
     "camelcase": "^8.0.0",
