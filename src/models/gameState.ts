@@ -49,6 +49,7 @@ function addGame(gameReq: Game) {
     cardPotValue: [2],
     currentTurn: 0,
     numTurns: gameReq.numTurns,
+    winner: undefined,
   };
 
   // Game im State speichern
@@ -253,6 +254,32 @@ function getNumFinishedPlayers(gameId: string) {
   return count;
 }
 
+function setWinner(gameId: string): string {
+  const validGameId = validateUUIDv4(gameId);
+  const game = getGame(validGameId);
+
+  if (!game.players || game.players.length === 0) {
+    throw new Error('Kein Spieler im Spiel vorhanden.');
+  }
+
+  // Gewinner darf nur einmal gesetzt werden
+  if (game.winner) {
+    logger.info(`Gewinner für Spiel ${gameId} war bereits gesetzt: ${game.winner}`);
+    return game.winner;
+  }
+
+  // Zufälligen Index wählen
+  const randomIndex = Math.floor(Math.random() * game.players.length);
+  const selectedWinner = game.players[randomIndex];
+
+  // Gewinner setzen
+  game.winner = selectedWinner.name;
+  logger.info(`Zufällig gewählter Gewinner für Spiel ${gameId}: ${selectedWinner.name}`);
+
+  return selectedWinner.name;
+}
+
+
 export const gameState = {
   getGame,
   getAllGames,
@@ -266,4 +293,5 @@ export const gameState = {
   addMove,
   startNewTurn,
   isGameFinished,
+  setWinner,
 };

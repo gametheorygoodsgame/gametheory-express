@@ -75,6 +75,25 @@ gameRouter.patch(
 );
 
 // Subrouten hinzufügen
+// Winner senden
+gameRouter.get('/:gameId/winner', uuidValidationMiddleware, (req: Request, res: Response) => {
+  try {
+    const { gameId } = req.params;
+    const game = gameState.getGame(gameId);
+
+    // Falls kein Gewinner gesetzt ist, wähle einen zufällig
+    if (!game.winner) {
+      gameState.setWinner(gameId);
+    }
+
+    // Gewinner senden
+    res.status(200).json({ winner: game.winner });
+  } catch (error) {
+    handleErrors(res, error as Error);
+  }
+});
+
+
 gameRouter.use('/:gameId/moves', uuidValidationMiddleware, moveRouter);
 gameRouter.use('/', playerRouter);
 
