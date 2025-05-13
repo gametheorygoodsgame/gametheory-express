@@ -81,6 +81,7 @@ function addPlayer(gameId: string, name: string) {
     name,
     moves: [{ numTurn: 0, numRedCards: 0 }],
     score: 0,
+    inactiveSinceTurn: -1,
   };
 
   // Player an die Liste der Spieler im Game anfügen
@@ -234,7 +235,7 @@ function addMove(gameId: string, playerId: string, moveReq: Move) {
 
   // 🛡️ Verhindere, dass inaktive Spieler noch Züge abgeben
   if ('inactiveSinceTurn' in player && typeof player.inactiveSinceTurn === 'number') {
-    if (game.currentTurn >= player.inactiveSinceTurn) {
+    if (player.inactiveSinceTurn !== -1) {
       throw new Error(
         `Du bist seit Runde ${player.inactiveSinceTurn} inaktiv und darfst leider keine weiteren Züge mehr machen.`,
       );
