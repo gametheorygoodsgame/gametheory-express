@@ -127,39 +127,44 @@ function getNumTurns(gameId: string) {
   return game.numTurns;
 }
 
-function calculateScoresAndPot(game: Game): void {
-  // 🔎 Prüfe, ob für diese Runde überhaupt ein Kartenwert vorliegt
-  if (!game.cardHandValue[game.currentTurn]) {
-    logger.warn(`⚠️ Kein Kartenwert für Runde ${game.currentTurn}`);
-    return;
-  }
+function calculateScoresAndPot(gameId: string) {
+  const validGameId = validateUUIDv4(gameId);
+  const game: Game = getGame(validGameId);
 
-  logger.debug(`[GameState] calculateScoresAndPot: ${JSON.stringify(game, null, 2)}`);
-
+  // Über die Spieler iterieren
   game.players.forEach((player, index) => {
-    // 🧩 Suche den Spielzug für diese Runde
-    const move = player.moves[game.currentTurn];
+    logger.debug(`PotCards[${game.currentTurn}]: ${game.potCards[game.currentTurn]}`);
+    logger.debug(`NumRedCards[${game.currentTurn}]: ${player.moves[game.currentTurn].numRedCards}`);
+    logger.debug(`${game.players[index].name} score before calculation: ${game.players[index].score}`);
 
-    // ❌ Wenn der Spieler keinen Zug abgegeben hat, wird er übersprungen
-    if (!move) {
-      logger.warn(`⚠️ Spieler ${player.name} hat keinen Move für Runde ${game.currentTurn}. Score bleibt gleich.`);
-      return;
-    }
+    /*
+      game.potCards[game.currentTurn] = (game.potCards[game.currentTurn] || 0) +
+      (player.moves[game.currentTurn].numRedCards || 0);
+    */
 
-    // ✅ Fallback-Werte verwenden, falls einzelne Werte fehlen
-    const redCards = move.numRedCards ?? 0;
-    const handValue = game.cardHandValue[game.currentTurn] ?? 1;
-    const potValue = game.cardPotValue[game.currentTurn] ?? 1;
-    const potCards = game.potCards[game.currentTurn] ?? 0;
+    // 2 - die Anzahl der gespielten Karten oder 0 * den Kartenwert auf der Hand zum Score addieren
+    game.players[index].score += (2 - (player.moves[game.currentTurn].numRedCards || 0))
+        * game.cardHandValue[game.currentTurn];
 
-    logger.debug(`🧮 ${player.name}: RedCards=${redCards}, Hand=${handValue}, PotCards=${potCards}, Pot=${potValue}`);
+    logger.debug(`${game.players[index].name} score after hand calculation: ${game.players[index].score}`);
 
-    // 🧠 Punkteberechnung:
-    // - 2 Punkte minus rote Karten * Handkartenwert
-    // - plus Anzahl Pot-Karten * Pot-Wert
-    game.players[index].score += (2 - redCards) * handValue;
-    game.players[index].score += potCards * potValue;
+    // Den Pott (Anzahl Karten * Kartenwert) zum Score addieren
+    game.players[index].score = (game.players[index].score || 0)
+        + (game.potCards[game.currentTurn]
+            * game.cardPotValue[game.currentTurn]);
+
+    logger.debug(`${game.players[index].name} score after pot calculation: ${game.players[index].score}`);
   });
+
+  /* game.players.forEach((value, index) => {
+    logger.debug(`${game.players[index].name} score: ${game.players[index].score}`);
+
+    game.players[index].score = (game.players[index].score || 0) +
+        (game.potCards[game.currentTurn]
+        * game.cardPotValue[game.currentTurn]);
+  }); */
+
+  return game;
 }
 
 function isGameFinished(gameId: string) {
@@ -181,7 +186,7 @@ function startNewTurn(gameId: string, gameReq: Game) {
 
   // Wenn dies nicht die Vorrunde ist, berechne die Scores
   if (gameReq.currentTurn !== 0) {
-    calculateScoresAndPot(gameReq);
+    calculateScoresAndPot(gameReq.id);
   }
 
   if (!isGameFinished(gameId)) {
