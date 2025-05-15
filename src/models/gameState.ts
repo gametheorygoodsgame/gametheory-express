@@ -133,6 +133,9 @@ function calculateScoresAndPot(gameId: string) {
 
   // Über die Spieler iterieren
   game.players.forEach((player, index) => {
+    if (player.inactiveSinceTurn !== -1) {
+      return;
+    }
     logger.debug(`PotCards[${game.currentTurn}]: ${game.potCards[game.currentTurn]}`);
     logger.debug(`NumRedCards[${game.currentTurn}]: ${player.moves[game.currentTurn].numRedCards}`);
     logger.debug(`${game.players[index].name} score before calculation: ${game.players[index].score}`);
