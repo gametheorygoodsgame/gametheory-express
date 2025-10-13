@@ -294,9 +294,14 @@ function setWinner(gameId: string): Player {
   }
 
   // Zufälligen Index wählen
-  const randomIndex = Math.floor(Math.random() * game.players.length);
-  const selectedWinner = game.players[randomIndex];
+  let randomIndex = Math.floor(Math.random() * game.players.length);
+  let selectedWinner = game.players[randomIndex];
 
+  while (selectedWinner.inactiveSinceTurn != -1)
+  {
+    randomIndex = Math.floor(Math.random() * game.players.length);
+    selectedWinner = game.players[randomIndex];
+  }
   // Gewinner setzen
   game.winner = selectedWinner;
   logger.info(`Zufällig gewählter Gewinner für Spiel ${gameId}: ${selectedWinner.name}`);
